@@ -1,5 +1,5 @@
 Makefile
 Trabajo*
 img_border.png
-*.cvs
+*.csv
 out.png
