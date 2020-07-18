@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 2.8)
+project( Trabajo5 )
+find_package( OpenCV REQUIRED )
+include_directories( ${OpenCV_INCLUDE_DIRS} )
+add_executable( Trabajo5 main.cpp )
+target_link_libraries( Trabajo5 ${OpenCV_LIBS} )
