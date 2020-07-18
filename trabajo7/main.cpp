@@ -1,8 +1,10 @@
+#include <iostream>
 #include <opencv2/core/mat.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 
 using namespace cv;
+using namespace std;
 
 void binarize(Mat src, Mat& dst, uint8_t u) {
   int rows, cols;
@@ -11,14 +13,12 @@ void binarize(Mat src, Mat& dst, uint8_t u) {
   rows = src.rows;
   cols = src.cols;
 
-  img_binarize = Mat::ones(rows, cols, CV_8UC1);
+  img_binarize = Mat::zeros(rows, cols, CV_8UC1);
 
   for (int i = 0; i < rows; i++) {
     for (int j = 0; j < cols; j++) {
       if (src.at<uchar>(i, j) >= u) {
         img_binarize.at<uchar>(i, j) = 255;
-      } else {
-        img_binarize.at<uchar>(i, j) = 0;
       }
     }
   }
@@ -93,13 +93,50 @@ void print_points(Mat img) {
   fclose(file);
 }
 
+/**
+ * Funcion que extrae el componente mas grande y devuelve su centroide.
+*/
+Point2d extract_largest_component(Mat src, Mat& dst) {
+  Mat labelImage(src.size(), CV_32S);
+  Mat stats, centroids;
+  int nLabels =
+      connectedComponentsWithStats(src, labelImage, stats, centroids, 8);
+  Mat img_largest_component = Mat::zeros(src.rows, src.cols, CV_8UC1);
+  int max_area = 0, area, max_label;
+
+  // Obtener la etiqueta del componente con area mayor.
+  for (int i = 1; i < nLabels; i++) {
+    area = stats.at<int>(i, CC_STAT_AREA);
+
+    if (area > max_area) {
+      max_area = area;
+      max_label = i;
+    }
+  }
+
+  // Mostrar solo el componente con area mayor.
+  for (int r = 0; r < labelImage.rows; ++r) {
+    for (int c = 0; c < labelImage.cols; ++c) {
+      int label = labelImage.at<int>(r, c);
+
+      if (label == max_label) {
+        img_largest_component.at<uchar>(r, c) = 255;
+      }
+    }
+  }
+  // imwrite("debug_largest_comp.png", src);
+  dst = img_largest_component;
+
+  return centroids.at<Point2d>(max_label);
+}
+
 int main(int argc, char** argv) {
   if (argc != 2) {
     printf("Use: ./Trabajo5 img_name.png");
     return EXIT_FAILURE;
   }
 
-  Mat image, img_border;
+  Mat image, img_border, largest_component;
   String imageName = argv[1];
 
   // As usual we load our source image (src)
@@ -112,10 +149,12 @@ int main(int argc, char** argv) {
   }
 
   img_border = get_img_border(image);
+  // imwrite("debug_img_border.png", img_border);
 
-  imwrite("img_border.png", img_border);
+  Point2d centroid = extract_largest_component(img_border, largest_component);
+  imwrite("out.png", largest_component);
 
-  print_points(img_border);
+  print_points(largest_component);
 
   return EXIT_SUCCESS;
 }
