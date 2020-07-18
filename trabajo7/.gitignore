@@ -1,5 +1,4 @@
-Makefile
+.DS_Store
 Trabajo*
-img_border.png
 *.csv
 out.png

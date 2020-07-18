@@ -3,6 +3,8 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 
+#include "utils.hpp"
+
 using namespace cv;
 using namespace std;
 
@@ -122,38 +124,49 @@ void hu_moments(Mat img, double huMoments[7]) {
   // Log scale hu moments
   for (int i = 0; i < 7; i++) {
     huMoments[i] = -1 * copysign(1.0, huMoments[i]) * log10(abs(huMoments[i]));
-    printf("Hu moment [%d]: %f\n", (1+1), huMoments[i]);
+    printf("Hu moment [%d]: %f\n", (1 + 1), huMoments[i]);
   }
+}
+
+int get_best_hu_moments(String folder_name) {
+  Mat img, img_border, largest_component;
+  vector<cv::String> img_names;
+  double huMoments[7];
+
+  glob(folder_name + "/*.png", img_names, false);
+
+  for (String img_name : img_names) {
+    // As usual we load our source image (src)
+    img = imread(img_name);  // Load an image
+
+    // Check if image is loaded fine
+    if (img.empty()) {
+      printf("Error opening image: %s\n", img_name.c_str());
+      return EXIT_FAILURE;
+    }
+
+    img_border = get_img_border(img);
+    // imwrite("debug_img_border.png", img_border);
+
+    extract_largest_component(img_border, largest_component);
+    // imwrite("out.png", largest_component);
+
+    hu_moments(largest_component, huMoments);
+
+    double std = standard_deviation(huMoments, 7);
+    printf("std: %f\n", std);
+  }
+
+  return EXIT_SUCCESS;
 }
 
 int main(int argc, char** argv) {
   if (argc != 2) {
-    printf("Use: ./Trabajo5 img_name.png");
+    printf("Use: ./Trabajo5 ./folder_name");
     return EXIT_FAILURE;
   }
 
-  Mat image, img_border, largest_component;
-  String imageName = argv[1];
-
-  // As usual we load our source image (src)
-  image = imread(imageName);  // Load an image
-
-  // Check if image is loaded fine
-  if (image.empty()) {
-    printf("Error opening image: %s\n", imageName.c_str());
-    return EXIT_FAILURE;
-  }
-
-  img_border = get_img_border(image);
-  // imwrite("debug_img_border.png", img_border);
-
-  Point2d centroid = extract_largest_component(img_border, largest_component);
-  imwrite("out.png", largest_component);
-
-  double huMoments[7];
-  hu_moments(largest_component, huMoments);
-
-  print_points(largest_component);
+  get_best_hu_moments(argv[1]);
 
   return EXIT_SUCCESS;
 }
