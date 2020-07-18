@@ -6,26 +6,6 @@
 using namespace cv;
 using namespace std;
 
-void binarize(Mat src, Mat& dst, uint8_t u) {
-  int rows, cols;
-  Mat img_binarize;
-
-  rows = src.rows;
-  cols = src.cols;
-
-  img_binarize = Mat::zeros(rows, cols, CV_8UC1);
-
-  for (int i = 0; i < rows; i++) {
-    for (int j = 0; j < cols; j++) {
-      if (src.at<uchar>(i, j) >= u) {
-        img_binarize.at<uchar>(i, j) = 255;
-      }
-    }
-  }
-
-  dst = img_binarize;
-}
-
 Mat get_img_border(Mat img) {
   Mat img_blur, img_gray, img_dil, img_sobel, img_binary;
   uint8_t u;
@@ -38,8 +18,9 @@ Mat get_img_border(Mat img) {
   cvtColor(img_blur, img_gray, COLOR_BGR2GRAY);
   // imwrite("debug_gray.png", img_gray);
 
+  // binarize
   u = 255 * 0.25;
-  binarize(img_gray, img_gray, u);
+  threshold(img_gray, img_gray, u, 255, THRESH_BINARY);
   // imwrite("debug_gray_bin.png", img_gray);
 
   Mat elementD = getStructuringElement(MORPH_RECT, Size(3, 3), Point(-1, -1));
@@ -69,8 +50,9 @@ Mat get_img_border(Mat img) {
   // erode(img_sobel, img_erode, Mat(), Point(0, 0), ksize * 2);
   // imwrite("debug_erode.png", img_erode);
 
+  // binarize
   u = 255 * 0.1;
-  binarize(img_erode, img_binary, u);
+  threshold(img_erode, img_binary, u, 255, THRESH_BINARY);
 
   return img_binary;
 }
@@ -95,7 +77,7 @@ void print_points(Mat img) {
 
 /**
  * Funcion que extrae el componente mas grande y devuelve su centroide.
-*/
+ */
 Point2d extract_largest_component(Mat src, Mat& dst) {
   Mat labelImage(src.size(), CV_32S);
   Mat stats, centroids;
@@ -130,6 +112,20 @@ Point2d extract_largest_component(Mat src, Mat& dst) {
   return centroids.at<Point2d>(max_label);
 }
 
+void hu_moments(Mat img, double huMoments[7]) {
+  // Calculate Moments
+  Moments _moments = moments(img, false);
+
+  // Calculate Hu Moments
+  HuMoments(_moments, huMoments);
+
+  // Log scale hu moments
+  for (int i = 0; i < 7; i++) {
+    huMoments[i] = -1 * copysign(1.0, huMoments[i]) * log10(abs(huMoments[i]));
+    printf("Hu moment [%d]: %f\n", (1+1), huMoments[i]);
+  }
+}
+
 int main(int argc, char** argv) {
   if (argc != 2) {
     printf("Use: ./Trabajo5 img_name.png");
@@ -153,6 +149,9 @@ int main(int argc, char** argv) {
 
   Point2d centroid = extract_largest_component(img_border, largest_component);
   imwrite("out.png", largest_component);
+
+  double huMoments[7];
+  hu_moments(largest_component, huMoments);
 
   print_points(largest_component);
 
