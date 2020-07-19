@@ -3,6 +3,10 @@ OBJS=lib/image_process.o lib/utils.o
 CFLAGS=-Iinclude
 OPENCV_LIBS=-lopencv_core -lopencv_imgproc -lopencv_videoio -lopencv_imgcodecs
 
+run: $(PROJ)
+	./$(PROJ) images/circulo
+	./$(PROJ) images/triangulo
+
 $(PROJ): main.cpp $(OBJS)
 	g++ $(CFLAGS) -o $@ $< $(OBJS) $(OPENCV_LIBS)
 
@@ -15,4 +19,4 @@ lib/utils.o: lib/utils.cpp include/utils.hpp
 clean:
 	rm -rf $(PROJ) **/*.o *.png
 
-.PHONY: clean
+.PHONY: run clean
