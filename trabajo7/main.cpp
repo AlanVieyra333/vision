@@ -8,94 +8,57 @@
 using namespace std;
 using namespace cv;
 
-void print_points(Mat img) {
-  int rows, cols;
-  FILE* file = fopen("coords.csv", "w");
+const char* target[] = {"CIRCULO", "TRIANGULO"};
 
-  rows = img.rows;
-  cols = img.cols;
+int8_t classiier(Mat img) {
+  int8_t predict = -1;
+  double best_hu_moments_c[7] = {1.594433, 0, 8.499806, 0, 0, 0, 0};
+  double best_hu_moments_t[7] = {1.624184, 0, 5.473052, 0, 0, 0, 0};
 
-  for (int i = 0; i < rows; i++) {
-    for (int j = 0; j < cols; j++) {
-      if (img.at<uchar>(i, j) > 0) {
-        fprintf(file, "%d,%d\n", j, rows - i);
-      }
-    }
-  }
+  get_img_border(img, img);
+  // imwrite("debug_img_border.png", img_border);
 
-  fclose(file);
-}
+  extract_largest_component(img, img);
+  // imwrite("out.png", largest_component);
 
-int get_best_hu_moments(String img_folder_name, double best_hu_moments[7], uint8_t best_hu_moments_len) {
-  Mat img, img_border, largest_component;
-  vector<String> img_names;
   double huMoments[7];
+  hu_moments(img, huMoments);
 
-  glob(img_folder_name + "/*.png", img_names, false);
-  int img_len = img_names.size();
+  double distance_c = distance_hu_moments(huMoments, best_hu_moments_c);
+  double distance_t = distance_hu_moments(huMoments, best_hu_moments_t);
 
-  double all_huMoments[7][img_len];
-
-  for (int i = 0; i < img_len; i++) {
-    img = imread(img_names[i]);  // Load an image
-
-    // Check if image is loaded fine
-    if (img.empty()) {
-      printf("Error opening image: %s\n", img_names[i].c_str());
-      return EXIT_FAILURE;
-    }
-
-    get_img_border(img, img_border);
-    // imwrite("debug_img_border.png", img_border);
-
-    extract_largest_component(img_border, largest_component);
-    // imwrite("out.png", largest_component);
-
-    hu_moments(largest_component, huMoments);
-
-    // Agregar los momentos de hu de la imagen actual.
-    for (uint8_t j = 0; j < 7; j++) {
-      all_huMoments[j][i] = huMoments[j];
-      // printf("huMoment[%d]: %f\n", (j+1), huMoments[j]);
-    }
+  if (distance_c < distance_t) {
+    predict = 0;
+  } else {
+    predict = 1;
   }
 
-  // Calcular la desviacion estandar de los momentos de hu.
-  vector<double> std_huMoments;
-  double aux_std_huMoments[7];
+  // printf("distance_c: %f\n", distance_c);
+  // printf("distance_t: %f\n", distance_t);
 
-  for (int i = 0; i < 7; i++) {
-    double std = standard_deviation(all_huMoments[i], img_len);
-    std_huMoments.push_back(std);
-    best_hu_moments[i] = 0;
-    aux_std_huMoments[i] = std;
-  }
-  sort(std_huMoments.begin(), std_huMoments.end());
-
-  // Calcular la media de los n momentos de hu con desviasion estandar mas
-  // baja.
-  for (uint8_t i = 0; i < best_hu_moments_len; i++) {
-    for (uint8_t j = 0; j < 7; j++) {
-      if (std_huMoments[i] == aux_std_huMoments[j]) {
-        best_hu_moments[j] = mean(all_huMoments[j], img_len);
-        break;
-      }
-    }
-  }
-
-  return EXIT_SUCCESS;
+  return predict;
 }
 
 int main(int argc, char** argv) {
   if (argc != 2) {
-    printf("Use: ./Trabajo5 ./folder_name");
+    printf("Use: ./Trabajo7 img_name");
     return EXIT_FAILURE;
   }
 
-  double best_hu_moments[7];
-  get_best_hu_moments(argv[1], best_hu_moments, 2);
-  for (uint8_t i = 0; i < 7; i++) {
-    printf("%f\n", best_hu_moments[i]);
+  const char* img_name = argv[1];
+  Mat img = imread(img_name);  // Load an image
+
+  // Check if image is loaded fine
+  if (img.empty()) {
+    printf("Error opening image: %s\n", img_name);
+    return EXIT_FAILURE;
+  }
+
+  int8_t predict = classiier(img);
+  if (predict != -1) {
+    printf("Figura reconocida: %s\n", target[predict]);
+  } else {
+    printf("Figura no reconocida\n");
   }
 
   return EXIT_SUCCESS;

@@ -108,3 +108,21 @@ void get_img_border(Mat src, Mat& dst) {
   u = 255 * 0.1;
   threshold(img_erode, dst, u, 255, THRESH_BINARY);
 }
+
+void print_points_img_bin(Mat img) {
+  int rows, cols;
+  FILE* file = fopen("coords.csv", "w");
+
+  rows = img.rows;
+  cols = img.cols;
+
+  for (int i = 0; i < rows; i++) {
+    for (int j = 0; j < cols; j++) {
+      if (img.at<uchar>(i, j) > 0) {
+        fprintf(file, "%d,%d\n", j, rows - i);
+      }
+    }
+  }
+
+  fclose(file);
+}

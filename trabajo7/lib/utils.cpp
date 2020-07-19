@@ -1,9 +1,22 @@
 #include "utils.hpp"
 
+#include <inttypes.h>
 #include <math.h>
 
 #include <numeric>
 #include <vector>
+
+double distance_hu_moments(double huMoments_a[7], double huMoments_b[7]) {
+  double distance = 0;
+
+  for (uint8_t i = 0; i < 7; i++) {
+    if (huMoments_a[i] != 0 && huMoments_b[i] != 0) {
+      distance += abs(huMoments_a[i] - huMoments_b[i]);
+    }
+  }
+
+  return distance;
+}
 
 double standard_deviation(double samples[], size_t n) {
   return sqrt(variance(samples, n));
