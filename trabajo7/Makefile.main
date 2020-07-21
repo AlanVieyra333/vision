@@ -1,0 +1,49 @@
+PROJ= Trabajo7
+MAIN= main
+OS := $(shell uname -s)
+OPENCV_LIBS=-lopencv_core -lopencv_imgproc -lopencv_videoio -lopencv_imgcodecs
+APPS= classifier.a hu-moments.a
+
+ifeq ($(OS), Linux)
+build: ${PROJ} ${APPS}
+
+run: build
+	./${PROJ}
+
+${PROJ}: ${MAIN}.cpp Makefile ./lib/*.cpp ./include/*.hpp ./lib/**/*.cpp ./include/**/*.hpp
+	make
+	@echo "Compilado."
+endif
+
+ifeq ($(OS), Darwin)
+build: ${PROJ}.app/Contents/MacOS/${PROJ} ${APPS}
+
+run: build
+	./${PROJ}.app/Contents/MacOS/${PROJ}
+
+${PROJ}.app/Contents/MacOS/${PROJ}: ${MAIN}.cpp Makefile ./lib/*.cpp ./include/*.hpp ./lib/**/*.cpp ./include/**/*.hpp
+	make
+	@echo "Compilado."
+endif
+
+hu-moments.a: hu-moments.cpp image_process.o utils.o
+	g++ -O3 -Iinclude -o $@ $< image_process.o utils.o $(OPENCV_LIBS)
+	@echo $@ compilado correctamente.
+	@echo "Use example: ./hu-moments.a images/circulo 2"
+
+classifier.a: classifier.cpp image_process.o image_classifier.o utils.o
+	g++ -O3 -Iinclude -o $@ $< image_process.o image_classifier.o utils.o $(OPENCV_LIBS)
+	@echo $@ compilado correctamente.
+	@echo "Use example: ./classifier.a images/circulo/imagen1.png"
+
+Makefile: ${MAIN}.pro
+	qmake ${MAIN}.pro
+
+clean:
+	rm -f *.a *.o **/*.o
+	rm -f .qmake.stash moc_*
+	rm -f Makefile
+	rm -f ${PROJ}
+	rm -rf ${PROJ}.app
+
+.PHONY: build run clean

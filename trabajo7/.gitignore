@@ -1,4 +1,6 @@
-.DS_Store
 Trabajo*
 *.csv
 out.png
+.qmake.stash
+moc_*
+Makefile

@@ -11,11 +11,11 @@ double distance_hu_moments(double huMoments_a[7], double huMoments_b[7]) {
 
   for (uint8_t i = 0; i < 7; i++) {
     if (huMoments_a[i] != 0 && huMoments_b[i] != 0) {
-      distance += abs(huMoments_a[i] - huMoments_b[i]);
+      distance += (huMoments_a[i] - huMoments_b[i]) * (huMoments_a[i] - huMoments_b[i]);
     }
   }
 
-  return distance;
+  return sqrt(distance);
 }
 
 double standard_deviation(double samples[], size_t n) {
@@ -26,7 +26,7 @@ double variance(double samples[], size_t n) {
   double variance = 0;
   double t = samples[0];
 
-  for (int i = 1; i < n; i++) {
+  for (size_t i = 1; i < n; i++) {
     t += samples[i];
     double diff = ((i + 1) * samples[i]) - t;
     variance += (diff * diff) / ((i + 1.0) * i);

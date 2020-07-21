@@ -5,6 +5,16 @@
 
 using namespace cv;
 
+void draw_border(Mat img, Mat border) {
+  for (size_t r = 0; r < img.rows; r++) {
+    for (size_t c = 0; c < img.cols; c++) {
+      if (border.at<uchar>(r, c) == 255) {
+        img.at<uchar>(r, c) = 255;
+      }
+    }
+  }
+}
+
 void hu_moments(Mat img, double huMoments[7]) {
   // Calculate Moments
   Moments _moments = moments(img, false);
@@ -29,7 +39,7 @@ Point2d extract_largest_component(Mat src, Mat& dst) {
   int nLabels =
       connectedComponentsWithStats(src, labelImage, stats, centroids, 8);
   Mat img_largest_component = Mat::zeros(src.rows, src.cols, CV_8UC1);
-  int max_area = 0, area, max_label;
+  int max_area = 0, max_label = 0, area;
 
   // Obtener la etiqueta del componente con area mayor.
   for (int i = 1; i < nLabels; i++) {
@@ -42,15 +52,18 @@ Point2d extract_largest_component(Mat src, Mat& dst) {
   }
 
   // Mostrar solo el componente con area mayor.
-  for (int r = 0; r < labelImage.rows; ++r) {
-    for (int c = 0; c < labelImage.cols; ++c) {
-      int label = labelImage.at<int>(r, c);
+  if (max_label != 0) {
+    for (int r = 0; r < labelImage.rows; ++r) {
+      for (int c = 0; c < labelImage.cols; ++c) {
+        int label = labelImage.at<int>(r, c);
 
-      if (label == max_label) {
-        img_largest_component.at<uchar>(r, c) = 255;
+        if (label == max_label) {
+          img_largest_component.at<uchar>(r, c) = 255;
+        }
       }
     }
   }
+
   // imwrite("debug_largest_comp.png", src);
   dst = img_largest_component;
 
@@ -69,8 +82,13 @@ void get_img_border(Mat src, Mat& dst) {
   medianBlur(img_blur, img_blur, 7);
   // imwrite("debug_blur.png", img_blur);
 
-  cvtColor(img_blur, img_gray, COLOR_BGR2GRAY);
-  // imwrite("debug_gray.png", img_gray);
+  // printf("channels: %d\n", src.channels());
+  if (src.channels() > 1) {
+    cvtColor(img_blur, img_gray, COLOR_BGR2GRAY);
+    // imwrite("debug_gray.png", img_gray);
+  } else {
+    img_gray = img_blur;
+  }
 
   // binarize
   u = 255 * 0.25;

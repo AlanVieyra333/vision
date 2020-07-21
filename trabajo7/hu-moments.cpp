@@ -52,6 +52,7 @@ void get_best_hu_moments(String img_folder_name, double best_hu_moments[7],
     std_huMoments.push_back(std);
     best_hu_moments[i] = 0;
     aux_std_huMoments[i] = std;
+    printf("std [%d]: %f\n",  (i+1), std);
   }
   sort(std_huMoments.begin(), std_huMoments.end());
 
