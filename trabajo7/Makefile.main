@@ -2,7 +2,7 @@ PROJ= Trabajo7
 MAIN= main
 OS := $(shell uname -s)
 OPENCV_LIBS=-lopencv_core -lopencv_imgproc -lopencv_videoio -lopencv_imgcodecs
-APPS= classifier.a hu-moments.a
+APPS= test/classifier.a test/hu-moments.a
 
 ifeq ($(OS), Linux)
 build: ${PROJ} ${APPS}
@@ -12,7 +12,7 @@ run: build
 
 ${PROJ}: ${MAIN}.cpp Makefile ./lib/*.cpp ./include/*.hpp ./lib/**/*.cpp ./include/**/*.hpp
 	make
-	@echo "Compilado."
+	@echo ">>> $@ compilado correctamente."
 endif
 
 ifeq ($(OS), Darwin)
@@ -23,24 +23,24 @@ run: build
 
 ${PROJ}.app/Contents/MacOS/${PROJ}: ${MAIN}.cpp Makefile ./lib/*.cpp ./include/*.hpp ./lib/**/*.cpp ./include/**/*.hpp
 	make
-	@echo "Compilado."
+	@echo ">>> $@ compilado correctamente."
 endif
-
-hu-moments.a: hu-moments.cpp image_process.o utils.o
-	g++ -O3 -Iinclude -o $@ $< image_process.o utils.o $(OPENCV_LIBS)
-	@echo $@ compilado correctamente.
-	@echo "Use example: ./hu-moments.a images/circulo 2"
-
-classifier.a: classifier.cpp image_process.o image_classifier.o utils.o
-	g++ -O3 -Iinclude -o $@ $< image_process.o image_classifier.o utils.o $(OPENCV_LIBS)
-	@echo $@ compilado correctamente.
-	@echo "Use example: ./classifier.a images/circulo/imagen1.png"
 
 Makefile: ${MAIN}.pro
 	qmake ${MAIN}.pro
 
+test/hu-moments.a: test/hu-moments.cpp image_process.o utils.o
+	g++ -O3 -Iinclude -o $@ $< image_process.o utils.o $(OPENCV_LIBS)
+	@echo ">>> $@ compilado correctamente."
+	@echo "Use example: test/hu-moments.a images/circulo 2"
+
+test/classifier.a: test/classifier.cpp image_process.o image_classifier.o utils.o
+	g++ -O3 -Iinclude -o $@ $< image_process.o image_classifier.o utils.o $(OPENCV_LIBS)
+	@echo ">>> $@ compilado correctamente."
+	@echo "Use example: test/classifier.a images/circulo/imagen1.png"
+
 clean:
-	rm -f *.a *.o **/*.o
+	rm -f *.a *.o **/*.o *.txt
 	rm -f .qmake.stash moc_*
 	rm -f Makefile
 	rm -f ${PROJ}
