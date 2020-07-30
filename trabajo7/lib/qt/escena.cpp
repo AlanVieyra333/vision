@@ -72,8 +72,6 @@ void Escena::dibuja_fondo() {
   // glDrawPixels(grayFrame.cols, grayFrame.rows, GL_LUMINANCE,
   // GL_UNSIGNED_BYTE, grayFrame.data);
 
-  printf("%d %d\n", frame.cols, frame.rows);
-
   if (marker_found) {
     // printf("Marcador encontrado en los siguientes puntos:\n");
     // for (int j = 0; j < 5; j++) {
