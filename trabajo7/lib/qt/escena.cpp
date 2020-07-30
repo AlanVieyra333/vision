@@ -75,10 +75,10 @@ void Escena::dibuja_fondo() {
   printf("%d %d\n", frame.cols, frame.rows);
 
   if (marker_found) {
-    printf("Marcador encontrado en los siguientes puntos:\n");
-    for (int j = 0; j < 5; j++) {
-      printf("%lf %lf\n", points[j].x, points[j].y);
-    }
+    // printf("Marcador encontrado en los siguientes puntos:\n");
+    // for (int j = 0; j < 5; j++) {
+    //   printf("%lf %lf\n", points[j].x, points[j].y);
+    // }
 
     /* Draw square. */
     glColor3ub(0, 255, 0);
@@ -89,9 +89,10 @@ void Escena::dibuja_fondo() {
     glVertex2f((points[4].x / (float) frame.cols) * 2.0 - 1.0, (1.0 - (points[4].y / (float) frame.rows)) * 2.0 - 1.0);
     glVertex2f((points[0].x / (float) frame.cols) * 2.0 - 1.0, (1.0 - (points[0].y / (float) frame.rows)) * 2.0 - 1.0);
     glEnd();
-  } else {
-    printf("Marcador no encontrado.\n");
   }
+  // else {
+  //   printf("Marcador no encontrado.\n");
+  // }
 
   glEnable(GL_DEPTH_TEST);
 }
