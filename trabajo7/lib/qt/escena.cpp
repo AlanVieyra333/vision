@@ -53,12 +53,18 @@ void Escena::dibuja_fondo() {
   flip(frame, frame, 0);
   cv::cvtColor(frame, grayFrame, COLOR_BGR2GRAY);
 
-  int8_t predict = img_classiier(grayFrame);
-  if (predict != -1) {
-    printf("Figura reconocida: %s\n", target[predict]);
+  DPOINT points[5];
+  bool marker_found = marker_recognition(grayFrame, points);
+
+  if (marker_found) {
+    printf("Marcador encontrado en los siguientes puntos:\n");
+    for (int j = 0; j < 5; j++) {
+      printf("%lf %lf\n", points[j].x, points[j].y);
+    }
   } else {
-    printf("Figura no reconocida\n");
+    printf("Marcador no encontrado.\n");
   }
+
 
   // GaussianBlur(grayFrame, grayFrame, Size(7, 7), 1.5, 1.5); //Smooth filter
   // threshold(grayFrame, grayFrame, threshold_value, max_BINARY_value,
@@ -76,6 +82,16 @@ void Escena::dibuja_fondo() {
   // grayFrame.data);
   glDrawPixels(grayFrame.cols, grayFrame.rows, GL_LUMINANCE, GL_UNSIGNED_BYTE,
                grayFrame.data);
+
+  // glColor3ub(0, 255, 0);
+  // glBegin(GL_LINE_STRIP);
+  // glVertex2f(0.0, 0.00);
+  // glVertex2f(1.00, 2.00);
+  // glVertex2f(2.00, 0.00);
+  // glVertex2f(3.00, 2.00);
+  // glVertex2f(4.00, 0.00);
+  // glEnd();
+
   glEnable(GL_DEPTH_TEST);
 }
 
