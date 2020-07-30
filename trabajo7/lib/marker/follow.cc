@@ -46,7 +46,7 @@ int follow_perimeter( Mat& I, int y, int x, uchar tono, POINT *pts  )
 		for( i=0; i<=8; i++ ) {
 			if( *ptri1==0 && *ptri2>0 ){
 				vecinos[sp++] = i+1;
-				if(vecinos[sp] == 9) vecinos[sp] = 0;
+				if(vecinos[sp-1] == 9) vecinos[sp-1] = 0;
 			}
 			ptri1++;
 			ptri2++;
