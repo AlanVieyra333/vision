@@ -80,12 +80,13 @@ void Escena::dibuja_fondo() {
 
     /* Draw square. */
     glColor3ub(0, 255, 0);
+    glLineWidth(3);
     glBegin(GL_LINE_STRIP);
-    glVertex2f((points[0].x / (float) frame.cols) * 2.0 - 1.0, (1.0 - (points[0].y / (float) frame.rows)) * 2.0 - 1.0);
-    glVertex2f((points[1].x / (float) frame.cols) * 2.0 - 1.0, (1.0 - (points[1].y / (float) frame.rows)) * 2.0 - 1.0);
-    glVertex2f((points[3].x / (float) frame.cols) * 2.0 - 1.0, (1.0 - (points[3].y / (float) frame.rows)) * 2.0 - 1.0);
-    glVertex2f((points[4].x / (float) frame.cols) * 2.0 - 1.0, (1.0 - (points[4].y / (float) frame.rows)) * 2.0 - 1.0);
-    glVertex2f((points[0].x / (float) frame.cols) * 2.0 - 1.0, (1.0 - (points[0].y / (float) frame.rows)) * 2.0 - 1.0);
+    glVertex2f((points[0].x / (float) frame.cols) * 2.0 - 1.0, ((points[0].y / (float) frame.rows)) * 2.0 - 1.0);
+    glVertex2f((points[1].x / (float) frame.cols) * 2.0 - 1.0, ((points[1].y / (float) frame.rows)) * 2.0 - 1.0);
+    glVertex2f((points[3].x / (float) frame.cols) * 2.0 - 1.0, ((points[3].y / (float) frame.rows)) * 2.0 - 1.0);
+    glVertex2f((points[4].x / (float) frame.cols) * 2.0 - 1.0, ((points[4].y / (float) frame.rows)) * 2.0 - 1.0);
+    glVertex2f((points[0].x / (float) frame.cols) * 2.0 - 1.0, ((points[0].y / (float) frame.rows)) * 2.0 - 1.0);
     glEnd();
   }
   // else {
