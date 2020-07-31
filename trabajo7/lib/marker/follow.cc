@@ -5,7 +5,7 @@
 using namespace cv;
 
 // Sigo con la convención (y,x)
-static int MEvoy[9][2] = {{0,0}, {-1, 0}, {-1, 1}, {0, 1}, {1,1}, {1, 0}, {1,-1}, {0,-1}, {-1,-1} }; 
+static int MEvoy[10][2] = {{0,0}, {-1, 0}, {-1, 1}, {0, 1}, {1,1}, {1, 0}, {1,-1}, {0,-1}, {-1,-1}, {-1, 0}}; 
 
 int signedArea( int p1, int p2 )
 {
@@ -46,7 +46,6 @@ int follow_perimeter( Mat& I, int y, int x, uchar tono, POINT *pts  )
 		for( i=0; i<=8; i++ ) {
 			if( *ptri1==0 && *ptri2>0 ){
 				vecinos[sp++] = i+1;
-				if(vecinos[sp-1] == 9) vecinos[sp-1] = 0;
 			}
 			ptri1++;
 			ptri2++;
