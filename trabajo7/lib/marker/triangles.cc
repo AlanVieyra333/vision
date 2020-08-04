@@ -1,7 +1,7 @@
 #include <math.h>
 #include <float.h>
-#include "follow.h"
-#include "triangles.h"
+#include "marker/follow.h"
+#include "marker/triangles.h"
 
 extern int checa_linea( POINT * pts, int, int );
 
@@ -104,7 +104,7 @@ int intersecs( DPOINT *p1, DPOINT *v1, DPOINT *p2, DPOINT *v2, DPOINT *r )
 	return 0;
 }
 
-int extrae_triangulo( POINT *pts, int n, POINT *vertices, DPOINT *dv )
+int extrae_triangulo( POINT *pts, int n, POINT vertices[4], DPOINT dv[3] )
 {
 	int i;
 	int currentDistance, maxDistance, maxPosition1, maxPosition2, xtmp, ytmp;
@@ -128,7 +128,8 @@ int extrae_triangulo( POINT *pts, int n, POINT *vertices, DPOINT *dv )
 	currentDistance = 0;
 	maxDistance = 0;
 	maxPosition1 = 0; //Current max is the first vertex.
-
+	maxPosition2 = 0;
+// printf(">> DEBUG: 1\n");
 	//Second vertex is the vertex furthest away from the first vertex.
 	for ( i = 1; i < n; i++){
 		xtmp = vertices[0].x - pts[i].x;
@@ -141,6 +142,7 @@ int extrae_triangulo( POINT *pts, int n, POINT *vertices, DPOINT *dv )
 			maxPosition1 = i;
 		}
 	}
+// printf(" >> DEBUG: 2\n");
 	vertices[1].x = pts[maxPosition1].x;
 	vertices[1].y = pts[maxPosition1].y;
 

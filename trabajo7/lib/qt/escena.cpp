@@ -1,6 +1,7 @@
-#include "escena.hpp"
+#include "qt/escena.hpp"
 
 #include "image_classifier.hpp"
+#include "viewer/draw_object.hpp"
 
 Escena::Escena(QWidget *parent) : QGLWidget(parent) {
   int cols = 640;
@@ -40,8 +41,11 @@ void Escena::capture() {
 }
 
 void Escena::dibuja_fondo() {
+  glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
   glDisable(GL_DEPTH_TEST);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
   // getting image from camera
   *(cap) >> frame;  // get a new frame from camera
   // Preprocessing image
@@ -53,8 +57,8 @@ void Escena::dibuja_fondo() {
   flip(frame, frame, 0);
   cv::cvtColor(frame, grayFrame, COLOR_BGR2GRAY);
 
-  DPOINT points[5];
-  bool marker_found = marker_recognition(grayFrame, points);
+  glDrawPixels(frame.cols, frame.rows, GL_BGR, GL_UNSIGNED_BYTE, frame.data);
+  glPopMatrix();
 
   // GaussianBlur(grayFrame, grayFrame, Size(7, 7), 1.5, 1.5); //Smooth filter
   // threshold(grayFrame, grayFrame, threshold_value, max_BINARY_value,
@@ -68,9 +72,12 @@ void Escena::dibuja_fondo() {
   // glPixelStorei(GL_UNPACK_ROW_LENGTH, grayFrame.step / grayFrame.elemSize());
   // flip(frame, frame, 0);
   // Drawing color image to the QGL canvas
-  glDrawPixels(frame.cols, frame.rows, GL_BGR, GL_UNSIGNED_BYTE, frame.data);
+  //glDrawPixels(frame.cols, frame.rows, GL_BGR, GL_UNSIGNED_BYTE, frame.data);
   // glDrawPixels(grayFrame.cols, grayFrame.rows, GL_LUMINANCE,
   // GL_UNSIGNED_BYTE, grayFrame.data);
+
+  double points[5][2];  
+  bool marker_found = marker_recognition(grayFrame, points);
 
   if (marker_found) {
     // printf("Marcador encontrado en los siguientes puntos:\n");
@@ -79,21 +86,11 @@ void Escena::dibuja_fondo() {
     // }
 
     /* Draw square. */
-    glColor3ub(0, 255, 0);
-    glLineWidth(3);
-    glBegin(GL_LINE_STRIP);
-    glVertex2f((points[0].x / (float) frame.cols) * 2.0 - 1.0, ((points[0].y / (float) frame.rows)) * 2.0 - 1.0);
-    glVertex2f((points[1].x / (float) frame.cols) * 2.0 - 1.0, ((points[1].y / (float) frame.rows)) * 2.0 - 1.0);
-    glVertex2f((points[3].x / (float) frame.cols) * 2.0 - 1.0, ((points[3].y / (float) frame.rows)) * 2.0 - 1.0);
-    glVertex2f((points[4].x / (float) frame.cols) * 2.0 - 1.0, ((points[4].y / (float) frame.rows)) * 2.0 - 1.0);
-    glVertex2f((points[0].x / (float) frame.cols) * 2.0 - 1.0, ((points[0].y / (float) frame.rows)) * 2.0 - 1.0);
-    glEnd();
+    draw_square(points, frame.rows, frame.cols);
   }
   // else {
   //   printf("Marcador no encontrado.\n");
   // }
-
-  glEnable(GL_DEPTH_TEST);
 }
 
 void Escena::mouseMoveEvent(QMouseEvent *e) {
@@ -110,14 +107,17 @@ void Escena::keyPressEvent(QKeyEvent *e) {
 // This method puts the initial coordinates each time window is resized
 //
 
-void Escena::resizeGL(int l, int a) {
-  windowWidth = l;
-  windowHeight = a;
-  glViewport(0, 0, (GLsizei)l, (GLsizei)a);
+void Escena::resizeGL(int w, int h) {
+  windowWidth = w;
+  windowHeight = h;
+
+  glViewport(0, 0, (GLsizei)w, (GLsizei)h);
+
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
+
+  glOrtho(0.0, w, 0.0, h, 1.0, 51.0);
+
   emit changeSize();
 }
 
@@ -128,5 +128,7 @@ QSizePolicy Escena::sizePolicy() const {
 void Escena::paintGL(void) { dibuja_fondo(); }
 
 void Escena::initializeGL() {
-  glClearColor(0.8, 0.8, 0.8, 0.0);  // Background to a grey tone
+  glEnable(GL_DEPTH_TEST);
+	glClearColor (0.5, 0.5, 0.5, 0.0);
+	glShadeModel (GL_FLAT);
 }

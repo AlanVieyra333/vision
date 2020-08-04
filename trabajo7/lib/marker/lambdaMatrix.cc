@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "triangles.h"
+#include "marker/triangles.h"
 
 
 #define MYSIZE 5   // Up to 16 points this program can calculate its lambda matrix

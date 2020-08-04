@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <math.h>
-#include "triangles.h"
-#include "follow.h"
-#include "lambdaMatrix.h"
+#include "marker/triangles.h"
+#include "marker/follow.h"
+#include "marker/lambdaMatrix.h"
 // #include "fill.h"
 #include "opencv2/imgcodecs.hpp"
 
@@ -335,7 +335,7 @@ int find_point_local_object( Mat& IN, int *v, int *x, int *y )
 }
 
 
-int reconoce( cv::Mat& Img, int i, int borde[], DPOINT retver[]  )
+int reconoce( cv::Mat& Img, int i, int borde[4], double retver[5][2]  )
 {
 	// int kobjs=0;
 	// char nombre[80];
@@ -343,7 +343,7 @@ int reconoce( cv::Mat& Img, int i, int borde[], DPOINT retver[]  )
     POINT iver[5];
     DPOINT dver[7];
     int indexes[5];
-    POINT ver[5];
+    POINT ver[4];
     static POINT per1[3000];
 	int cx, cy, d;
 	int vx, vy, v;
@@ -367,14 +367,12 @@ int reconoce( cv::Mat& Img, int i, int borde[], DPOINT retver[]  )
 		return 2;
 
 	// printf( "# Encontré cuadrado!\n" );
-			
 	n = extrae_perimetro( Img, borde, per1 );
 	// fprintf( stderr, "# Extraje perímetro 2 %d\n", n );
 	// imwrite( "4.png", Img );
-
 	if ( n <= 0 ) {
 		return 3;
-	}
+	};
 
 	if( extrae_triangulo( per1, n, ver, &dver[4] ) < 0 ) {
 		// fprintf( stderr, "# Mal triangulo\n");
@@ -409,10 +407,8 @@ int reconoce( cv::Mat& Img, int i, int borde[], DPOINT retver[]  )
 	}
 	lambdaMatrix( iver, indexes );
 	for(i=0; i<5; i++) {
-		retver[i].x = dver[ indexes[i] ].x;
-		retver[i].y = dver[ indexes[i] ].y;
-		// retver[i].y = Img.rows - 1 - dver[ indexes[i] ].y;
-		// printf("%lf %lf\n", retver[i].x, retver[i].y );
+		retver[i][0] = dver[ indexes[i] ].x;
+		retver[i][1] = dver[ indexes[i] ].y;
 	} 
 
 	return( 0 );

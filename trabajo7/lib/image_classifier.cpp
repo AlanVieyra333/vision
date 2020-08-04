@@ -2,8 +2,8 @@
 #include <opencv2/imgproc.hpp>
 
 #include "image_process.hpp"
+#include "marker/reconoce.h"
 #include "opencv2/imgcodecs.hpp"
-#include "reconoce.h"
 #include "utils.hpp"
 
 using namespace cv;
@@ -42,14 +42,14 @@ int8_t img_classiier(Mat img) {
   return predict;
 }
 
-bool marker_recognition(Mat _img, DPOINT points[5]) {
+bool marker_recognition(Mat _img, double points[5][2]) {
   Mat Image;
 
   GaussianBlur(_img, Image, Size(7, 7), 1.5, 1.5);  // Smooth filter
   threshold(Image, Image, 255 * 0.4, 255, THRESH_BINARY);
 
   bool marker_found = false;
-  int v[8], r;
+  int v[4], r;
   uchar *pout;
   int *pin;
   Mat Image2 = Mat::zeros(Image.rows, Image.cols, CV_8UC1);

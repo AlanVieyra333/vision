@@ -1,5 +1,5 @@
-#include "painter.hpp"
-#include "escena.hpp"
+#include "qt/painter.hpp"
+#include "qt/escena.hpp"
 
 Painter::Painter(QWidget *parent)
 : QWidget(parent) {

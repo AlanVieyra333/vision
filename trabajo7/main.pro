@@ -4,12 +4,12 @@
 
 TEMPLATE    = app
 TARGET      = Trabajo7
-INCLUDEPATH += include include/qt include/marker
+INCLUDEPATH += include
 
 QT += opengl
 
 # Input
-HEADERS += ./include/*.hpp ./include/qt/*.hpp ./include/marker/*.h
-SOURCES += main.cpp ./lib/*.cpp ./lib/qt/*.cpp ./lib/marker/*.cc
+HEADERS += ./include/*.hpp ./include/qt/*.hpp ./include/marker/*.h ./include/homography/*.h ./include/viewer/*.hpp
+SOURCES += main.cpp ./lib/*.cpp ./lib/qt/*.cpp ./lib/marker/*.cc ./lib/homography/*.cc ./lib/viewer/*.cpp
 
 LIBS += -lopencv_core -lopencv_imgproc -lopencv_videoio -lopencv_imgcodecs
