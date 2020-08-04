@@ -53,9 +53,9 @@ void quita_tiritas( Mat& I, int *v, uchar tono )
 	uchar *ptrin, *ptraux;
 	int suma;
 
-	for( i=v[INICIOY]+1; i<v[FINY]; i++ ) {
+	for( i=v[INICIOY]; i<v[FINY]; i++ ) {
 		ptrin = I.ptr<uchar>(i) + v[INICIOX] + 1;
-		for( j=v[INICIOX]+1; j<v[FINX]; j++ ) {
+		for( j=v[INICIOX]; j<v[FINX]; j++ ) {
 			if ( *ptrin == tono ) {
 				suma = 0;
 				for ( k = -1 ; k <= 1; k++ ) {
@@ -65,11 +65,44 @@ void quita_tiritas( Mat& I, int *v, uchar tono )
 						suma += *ptraux++;
 					}
 				}
-				suma -= 2*tono;
-				if ( suma == 1785 || suma == 1530 ) // Solo tiene uno vecino. Se borra
-					*ptrin = 255;
+				// Si es un punto aislado o tiene un solo
+				// vecino, se borra
+				if ( suma == 255 || suma == 510 )
+					*ptrin = 0;
 			}
 			ptrin++;
+		}
+	}
+}
+
+void quita_esquinas( Mat& I, int *v, uchar tono )
+{
+	int i, j;
+	uchar *ptrin, *ptr1, *ptr2;
+
+	for( i=v[INICIOY]; i<v[FINY]; i++ ) {
+		ptr1  = I.ptr<uchar>(i-1) + v[INICIOX] + 1;
+		ptrin = I.ptr<uchar>(i) + v[INICIOX] + 1;
+		ptr2  = I.ptr<uchar>(i+1) + v[INICIOX] + 1;
+		for( j=v[INICIOX]; j<v[FINX]; j++ ) {
+			if ( *ptrin == tono ) {
+				if( *ptr1 == tono && *ptr2 == 0 ){
+					if ( ptrin[-1] == tono && ptrin[1] == 0 )
+						*ptrin = 0; 
+					if ( ptrin[-1] == 0 && ptrin[1] == tono )
+						*ptrin = 0; 
+
+				}
+				else if ( *ptr1 == 0 && *ptr2 == tono ){
+					if ( ptrin[-1] == tono && ptrin[1] == 0 )
+						*ptrin = 0; 
+					if ( ptrin[-1] == 0 && ptrin[1] == tono )
+						*ptrin = 0; 
+				} 
+			}
+			ptrin++;
+			ptr1++;
+			ptr2++;
 		}
 	}
 }
@@ -96,7 +129,7 @@ int extrae_perimetro( Mat& Img, int *vals, POINT *pts )
 	}
 	SIGUE:
 	if ( x == -1 ) {
-		// fprintf( stderr, "No hay puntos de perímetro\n" );
+		// fprintf( stderr, "# No hay puntos de perímetro\n" );
 		return -3;
 	}
 	/** Buscamos en el tramo "de arriba" **/
@@ -119,8 +152,8 @@ int extrae_perimetro( Mat& Img, int *vals, POINT *pts )
 	}
 	n = follow_perimeter( Img, y, x, PERIMETRO, pts );
 	if( n > 3000 ) {
-		fprintf( stderr, "Hay más de 3000 puntos en el perímetro\n" );
-		fprintf( stderr, "n = %d\n", n );
+		// fprintf( stderr, "Hay más de 3000 puntos en el perímetro\n" );
+		// fprintf( stderr, "n = %d\n", n );
 		return -4;
 	}
 	return n;
@@ -154,12 +187,12 @@ int checa_linea( POINT *pts, int index1, int index2 )
 		}
 	}
 	dd = (double)distance/sqrt( pw.x * pw.x + pw.y * pw.y );
-	// printf( "# d= %lf %lf\n", dd, sqrt( dx * dx + dy * dy )/20.0 );
+	// printf( "# d= %lf %lf\n", dd, sqrt( dx * dx + dy * dy )/10.0 );
 	// if( dd > sqrt( dx * dx + dy * dy )/75.0 )
-	if( dd > sqrt( dx * dx + dy * dy )/20.0 )
+	if( dd > sqrt( dx * dx + dy * dy )/10.0 )
 		return( indice ); 
-	else 
-		return -2;
+
+	return -2;
 }
 
 int analiza_perimetro_cuadrado( POINT *pts, int n, DPOINT *pdver )
@@ -265,10 +298,14 @@ int analiza_perimetro_cuadrado( POINT *pts, int n, DPOINT *pdver )
 	getVector( pts, i3, i4-1, &pmedio[2], &vec[2] );
 	getVector( pts, i4, n-1,  &pmedio[3], &vec[3] );
 
-	intersecs( &pmedio[3], &vec[3], &pmedio[0], &vec[0], &pdver[0] );
-	intersecs( &pmedio[0], &vec[0], &pmedio[1], &vec[1], &pdver[1] );
-	intersecs( &pmedio[1], &vec[1], &pmedio[2], &vec[2], &pdver[2] );
-	intersecs( &pmedio[2], &vec[2], &pmedio[3], &vec[3], &pdver[3] );
+	if( intersecs( &pmedio[3], &vec[3], &pmedio[0], &vec[0], &pdver[0] ) != 0 )
+		return -5;
+	if( intersecs( &pmedio[0], &vec[0], &pmedio[1], &vec[1], &pdver[1] ) != 0 )
+		return -6;
+	if( intersecs( &pmedio[1], &vec[1], &pmedio[2], &vec[2], &pdver[2] ) != 0 )
+		return -7;
+	if( intersecs( &pmedio[2], &vec[2], &pmedio[3], &vec[3], &pdver[3] ) != 0 )
+		return -8;
 
 	// printf( "#v1: %lf %lf\n", pdver[0].x, pdver[0].y );
 	// printf( "#v2: %lf %lf\n", pdver[1].x, pdver[1].y );
@@ -311,11 +348,13 @@ int reconoce( cv::Mat& Img, int i, int borde[], DPOINT retver[]  )
 	int cx, cy, d;
 	int vx, vy, v;
 
-	// quita_tiritas( Img, borde, 255 );
+	quita_tiritas( Img, borde, 255 );
 	// Calcula el perímetro
 	// imwrite( "1.png", Img );
 	dilation_4neig_inplace_obj( Img, borde );
 	// imwrite( "2.png", Img );
+
+	quita_esquinas( Img, borde, 128 );
 
 	n = extrae_perimetro( Img, borde, per1 );
 	// imwrite( "3.png", Img );
@@ -326,16 +365,19 @@ int reconoce( cv::Mat& Img, int i, int borde[], DPOINT retver[]  )
 
 	if ( analiza_perimetro_cuadrado( per1, n, dver ) != 0 )
 		return 2;
-		// printf( "Encontré cuadrado!\n" );
+
+	// printf( "# Encontré cuadrado!\n" );
 			
 	n = extrae_perimetro( Img, borde, per1 );
-	// fprintf( stderr, "Extraje perímetro %d\n", n );
+	// fprintf( stderr, "# Extraje perímetro 2 %d\n", n );
+	// imwrite( "4.png", Img );
+
 	if ( n <= 0 ) {
 		return 3;
 	}
 
 	if( extrae_triangulo( per1, n, ver, &dver[4] ) < 0 ) {
-		// fprintf( stderr, "Mal triangulo\n");
+		// fprintf( stderr, "# Mal triangulo\n");
 		return 4;
 	}
 	// printf( "#v5: %lf %lf\n", dver[4].x, dver[4].y );

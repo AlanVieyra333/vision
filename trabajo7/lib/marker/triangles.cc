@@ -3,6 +3,8 @@
 #include "follow.h"
 #include "triangles.h"
 
+extern int checa_linea( POINT * pts, int, int );
+
 
 int getVector( POINT *p, int i1, int i2, DPOINT *pmedia, DPOINT *vec )
 {
@@ -76,7 +78,7 @@ int getVector( POINT *p, int i1, int i2, DPOINT *pmedia, DPOINT *vec )
 	return 0;
 }
 
-void intersecs( DPOINT *p1, DPOINT *v1, DPOINT *p2, DPOINT *v2, DPOINT *r )
+int intersecs( DPOINT *p1, DPOINT *v1, DPOINT *p2, DPOINT *v2, DPOINT *r )
 {
 	double delta, deltaS, deltaT;
 	double px, py;
@@ -84,6 +86,9 @@ void intersecs( DPOINT *p1, DPOINT *v1, DPOINT *p2, DPOINT *v2, DPOINT *r )
 
 	//Compute the intersection of edge1 with edge2.
 	delta	= -( v1->x * v2->y ) + v1->y * v2->x;
+	if( fabs(delta) < 1e-15 )
+		return -1;
+
 	px = p2->x - p1->x;
 	py = p2->y - p1->y;
 
@@ -95,6 +100,8 @@ void intersecs( DPOINT *p1, DPOINT *v1, DPOINT *p2, DPOINT *v2, DPOINT *r )
 
 	r->x = p1->x + T*v1->x;
 	r->y = p1->y + T*v1->y;
+
+	return 0;
 }
 
 int extrae_triangulo( POINT *pts, int n, POINT *vertices, DPOINT *dv )
@@ -201,6 +208,21 @@ int extrae_triangulo( POINT *pts, int n, POINT *vertices, DPOINT *dv )
 	given a set of points, returns a ray (point + vector).
 	Finally, we'll have 3 rays, and the last step is to calculate the pairwise
 	intersection of consecutive rays (there will be 3).
+	**/
+
+	/**
+	if ( checa_linea( pts, 0, maxPosition1-1 ) >= 0 ){
+		printf("# t e1\n");
+		return -4;
+	}
+	if ( checa_linea( pts, maxPosition1, maxPosition2-1 ) >= 0 ){
+		printf("# t e2\n");
+		return -5;
+	}
+	if ( checa_linea( pts, maxPosition2, n-1 ) >= 0 ){
+		printf("# t e3\n");
+		return -6;
+	}
 	**/
 
 	//Isolate each set of points for each edge.

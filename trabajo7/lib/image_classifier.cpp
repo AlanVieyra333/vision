@@ -43,40 +43,41 @@ int8_t img_classiier(Mat img) {
 }
 
 bool marker_recognition(Mat _img, DPOINT points[5]) {
-  Mat img;
+  Mat Image;
 
-  GaussianBlur(_img, img, Size(7, 7), 1.5, 1.5);  // Smooth filter
-  threshold(img, img, 255 * 0.50, 255, THRESH_BINARY);
+  GaussianBlur(_img, Image, Size(7, 7), 1.5, 1.5);  // Smooth filter
+  threshold(Image, Image, 255 * 0.4, 255, THRESH_BINARY);
 
   bool marker_found = false;
-  int v[8];
+  int v[8], r;
   uchar *pout;
   int *pin;
-  Mat Image2 = Mat::zeros(img.rows, img.cols, CV_8UC1);
+  Mat Image2 = Mat::zeros(Image.rows, Image.cols, CV_8UC1);
 
   Mat Etiquetas, Estadisticas, Centroides;
 
-  img = ~img;
+  Image = ~Image;
 
   /** Los objetos deben ser blancos **/
-  int n = connectedComponentsWithStats(img, Etiquetas, Estadisticas, Centroides,
-                                       8, CV_32S);
+  int n = connectedComponentsWithStats(Image, Etiquetas, Estadisticas,
+                                       Centroides, 8, CV_32S);
   // printf( "n = %d\n", n );
 
   /** Para todas las componentes conectadas **/
   for (int i = 1; i < n && !marker_found; i++) {
-    // printf("[%d] AREA-1: %d\n", i, Estadisticas.at<int>(i, CC_STAT_AREA));
+    if (Estadisticas.at<int>(i, CC_STAT_AREA) < 50) continue;
 
     v[0] = Estadisticas.at<int>(i, CC_STAT_LEFT) - 1;
     if (v[0] < 0) v[0] = 0;
     v[1] = Estadisticas.at<int>(i, CC_STAT_TOP) - 1;
     if (v[1] < 0) v[1] = 0;
     v[2] = v[0] + Estadisticas.at<int>(i, CC_STAT_WIDTH) + 1;
-    if (v[2] > img.cols - 1) v[2] = img.cols - 1;
+    if (v[2] > Image.cols - 1) v[2] = Image.cols - 1;
     v[3] = v[1] + Estadisticas.at<int>(i, CC_STAT_HEIGHT) + 1;
-    if (v[3] > img.rows - 1) v[3] = img.rows - 1;
+    if (v[3] > Image.rows - 1) v[3] = Image.rows - 1;
 
-    if (v[0] == 0 || v[1] == 0 || v[2] == img.cols - 1 || v[3] == img.rows - 1)
+    if (v[0] == 0 || v[1] == 0 || v[2] == Image.cols - 1 ||
+        v[3] == Image.rows - 1)
       continue;
 
     for (int j = v[1]; j <= v[3]; j++) {
