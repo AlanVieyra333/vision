@@ -33,7 +33,12 @@ Escena::Escena(QWidget *parent) : QGLWidget(parent) {
   cvtColor(frame, grayFrame, COLOR_BGR2GRAY);
 }
 
-void Escena::timerDone() { updateGL(); }
+void Escena::timerDone() {
+  this->yrot += 4.0;
+	if( this->yrot > 360.0 ) this->yrot = 0.0;
+
+  updateGL();
+}
 
 void Escena::capture() {
   flip(grayFrame, grayFrame, 0);
@@ -42,7 +47,7 @@ void Escena::capture() {
 
 void Escena::dibuja_fondo() {
   glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-  glMatrixMode(GL_MODELVIEW);
+
   glPushMatrix();
   glDisable(GL_DEPTH_TEST);
 
@@ -85,8 +90,12 @@ void Escena::dibuja_fondo() {
     //   printf("%lf %lf\n", points[j].x, points[j].y);
     // }
 
-    /* Draw square. */
-    draw_square(points, frame.rows, frame.cols);
+    /* Draw objects. */
+    glPushMatrix();
+    get_homography(points, frame.rows, frame.cols);
+    draw_square();
+    draw_triangle(this->yrot);
+    glPopMatrix();
   }
   // else {
   //   printf("Marcador no encontrado.\n");
@@ -112,11 +121,13 @@ void Escena::resizeGL(int w, int h) {
   windowHeight = h;
 
   glViewport(0, 0, (GLsizei)w, (GLsizei)h);
-
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
 
   glOrtho(0.0, w, 0.0, h, 1.0, 51.0);
+
+  glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity ();			 /* clear the matrix */
 
   emit changeSize();
 }
@@ -128,7 +139,16 @@ QSizePolicy Escena::sizePolicy() const {
 void Escena::paintGL(void) { dibuja_fondo(); }
 
 void Escena::initializeGL() {
+  this->yrot = 0;
+
+  glClearColor (0.5, 0.5, 0.5, 0.0);
+  glShadeModel (GL_FLAT);
+
+  glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
   glEnable(GL_DEPTH_TEST);
-	glClearColor (0.5, 0.5, 0.5, 0.0);
-	glShadeModel (GL_FLAT);
+
+  glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity ();
 }

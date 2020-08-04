@@ -36,7 +36,7 @@ public slots:
 
     void initscreen(void) {
         // timer->start(41);
-        timer->start(41);
+        timer->start(33);
     }
 
     void stop(void) {
