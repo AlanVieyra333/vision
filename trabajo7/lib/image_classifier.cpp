@@ -46,7 +46,7 @@ bool marker_recognition(Mat _img, double points[5][2]) {
   Mat Image;
 
   GaussianBlur(_img, Image, Size(7, 7), 1.5, 1.5);  // Smooth filter
-  threshold(Image, Image, 145, 255, THRESH_BINARY);
+  threshold(Image, Image, 105, 255, THRESH_BINARY);
 
   bool marker_found = false;
   int v[4];

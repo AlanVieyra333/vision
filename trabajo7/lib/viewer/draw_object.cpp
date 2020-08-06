@@ -56,22 +56,22 @@ void animation_tetraedro(float angle) {
   if (!tetraedro_initialized) {
     tetraedro_initialized = true;
 
-    float l = 2.5;
+    float l = 2.0;
     d = 0.82916 * l;
     init_tetraedro(tetraedro1, l);
     init_tetraedro(tetraedro2, l);
   }
 
-  glTranslatef(0.0, 0.0, 1.65832);
+  // glTranslatef(0.0, 0.0, 1.65832);
 
   glPushMatrix();
   glRotatef(angle, 0.0, 0.0, 1.0);
   glRotatef(180, 0.0, 1.0, 0.0);
-  glTranslatef(0.0, 0.0, -d);
+  glTranslatef(0.0, 0.0, -d*2);
   draw_tetraedro(tetraedro2);
   glPopMatrix();
 
-  glTranslatef(0.0, 0.0, -d);
+  // glTranslatef(0.0, 0.0, -d);
   draw_tetraedro(tetraedro1);
 }
 
