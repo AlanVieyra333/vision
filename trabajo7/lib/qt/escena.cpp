@@ -1,7 +1,11 @@
 #include "qt/escena.hpp"
 
+#include <chrono>
+
 #include "image_classifier.hpp"
 #include "viewer/draw_object.hpp"
+
+using namespace std::chrono; 
 
 Escena::Escena(QWidget *parent) : QGLWidget(parent) {
   int cols = 640;
@@ -37,7 +41,7 @@ Escena::Escena(QWidget *parent) : QGLWidget(parent) {
 
 void Escena::timerDone() {
   this->yrot += 5.0;
-	if( this->yrot > 360.0 ) this->yrot = 0.0;
+  if (this->yrot > 360.0) this->yrot = 0.0;
 
   updateGL();
 }
@@ -48,7 +52,7 @@ void Escena::capture() {
 }
 
 void Escena::dibuja_fondo() {
-  glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   // getting image from camera
   *(cap) >> frame;  // get a new frame from camera
@@ -62,10 +66,37 @@ void Escena::dibuja_fondo() {
   glEnable(GL_DEPTH_TEST);
   // glPopMatrix();
 
-  double points[5][2];  
   bool marker_found = marker_recognition(grayFrame, points);
 
+  // if (!marker_found) {
+  //   // printf("Marcador no encontrado.\n");
+  //   if (are_there_points_prev > 0) {
+  //     are_there_points_prev++;
+  //     /* Draw objects. */
+  //     glPushMatrix();
+  //     set_homography(points_prev, frame.rows, frame.cols);
+  //     draw_square();
+  //     // draw_triangle(this->yrot);
+  //     animation_tetraedro(this->yrot);
+  //     glPopMatrix();
+
+  //     if (are_there_points_prev > 10) {
+  //       are_there_points_prev = 0;
+  //     }
+  //   }
+  // } else {
   if (marker_found) {
+    // are_there_points_prev = 1;
+    // points_prev[0][0] = points[0][0];
+    // points_prev[0][1] = points[0][1];
+    // points_prev[1][0] = points[1][0];
+    // points_prev[1][1] = points[1][1];
+    // points_prev[2][0] = points[2][0];
+    // points_prev[2][1] = points[2][1];
+    // points_prev[3][0] = points[3][0];
+    // points_prev[3][1] = points[3][1];
+    // points_prev[4][0] = points[4][0];
+    // points_prev[4][1] = points[4][1];
     // printf("Marcador encontrado en los siguientes puntos:\n");
     // for (int j = 0; j < 5; j++) {
     //   printf("%lf %lf\n", points[j].x, points[j].y);
@@ -79,9 +110,6 @@ void Escena::dibuja_fondo() {
     animation_tetraedro(this->yrot);
     glPopMatrix();
   }
-  // else {
-  //   printf("Marcador no encontrado.\n");
-  // }
 }
 
 void Escena::mouseMoveEvent(QMouseEvent *e) {
@@ -109,7 +137,7 @@ void Escena::resizeGL(int w, int h) {
   glOrtho(0.0, w, 0.0, h, 1.0, 51.0);
 
   glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity ();			 /* clear the matrix */
+  glLoadIdentity(); /* clear the matrix */
 
   emit changeSize();
 }
@@ -118,20 +146,26 @@ QSizePolicy Escena::sizePolicy() const {
   return QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
 
-void Escena::paintGL(void) { dibuja_fondo(); }
+void Escena::paintGL(void) {
+  //auto start = high_resolution_clock::now();
+  dibuja_fondo();
+  //auto stop = high_resolution_clock::now();
+  //auto duration = duration_cast<microseconds>(stop - start);
+  //printf("Duration: %d ms\n", duration.count());
+}
 
 void Escena::initializeGL() {
-  glClearColor ( 0.8, 0.8, 0.8, 0.0);	// Background to a grey tone
+  glClearColor(0.8, 0.8, 0.8, 0.0);  // Background to a grey tone
   // glShadeModel (GL_FLAT);
 
   glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
+  glLoadIdentity();
 
-  glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0 );
+  glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
   glEnable(GL_DEPTH_TEST);
 
   glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity ();
+  glLoadIdentity();
 
-  glEnable( GL_LINE_SMOOTH );	
+  glEnable(GL_LINE_SMOOTH);
 }
