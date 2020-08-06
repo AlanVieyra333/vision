@@ -31,18 +31,20 @@ Escena::Escena(QWidget *parent) : QGLWidget(parent) {
   *(cap) >> frame;  // get a new frame from camera
 
   cvtColor(frame, grayFrame, COLOR_BGR2GRAY);
+
+  xrot = yrot = 0;
 }
 
 void Escena::timerDone() {
-  this->yrot += 4.0;
+  this->yrot += 5.0;
 	if( this->yrot > 360.0 ) this->yrot = 0.0;
 
   updateGL();
 }
 
 void Escena::capture() {
-  flip(grayFrame, grayFrame, 0);
-  imwrite("imagen.png", grayFrame);
+  flip(frame, frame, 0);
+  imwrite("imagen.png", frame);
 }
 
 void Escena::dibuja_fondo() {
@@ -53,33 +55,12 @@ void Escena::dibuja_fondo() {
 
   // getting image from camera
   *(cap) >> frame;  // get a new frame from camera
-  // Preprocessing image
-  // Thresholding settings
-  int threshold_value = 100;
-  int threshold_type = 1;
-  int const max_BINARY_value = 255;
 
   flip(frame, frame, 0);
   cv::cvtColor(frame, grayFrame, COLOR_BGR2GRAY);
 
   glDrawPixels(frame.cols, frame.rows, GL_BGR, GL_UNSIGNED_BYTE, frame.data);
   glPopMatrix();
-
-  // GaussianBlur(grayFrame, grayFrame, Size(7, 7), 1.5, 1.5); //Smooth filter
-  // threshold(grayFrame, grayFrame, threshold_value, max_BINARY_value,
-  // threshold_type); bitwise_not(grayFrame, grayFrame);
-
-  // IMG1 is the camera frame in graytones, and can be processed after this line
-
-  // use fast 4-byte alignment (default anyway) if possible
-  // glPixelStorei(GL_UNPACK_ALIGNMENT, (grayFrame.step & 3) ? 1 : 4);
-  // set length of one complete row in data (doesn't need to equal image.cols)
-  // glPixelStorei(GL_UNPACK_ROW_LENGTH, grayFrame.step / grayFrame.elemSize());
-  // flip(frame, frame, 0);
-  // Drawing color image to the QGL canvas
-  //glDrawPixels(frame.cols, frame.rows, GL_BGR, GL_UNSIGNED_BYTE, frame.data);
-  // glDrawPixels(grayFrame.cols, grayFrame.rows, GL_LUMINANCE,
-  // GL_UNSIGNED_BYTE, grayFrame.data);
 
   double points[5][2];  
   bool marker_found = marker_recognition(grayFrame, points);
@@ -92,9 +73,10 @@ void Escena::dibuja_fondo() {
 
     /* Draw objects. */
     glPushMatrix();
-    get_homography(points, frame.rows, frame.cols);
+    set_homography(points, frame.rows, frame.cols);
     draw_square();
-    draw_triangle(this->yrot);
+    // draw_triangle(this->yrot);
+    animation_tetraedro(this->yrot);
     glPopMatrix();
   }
   // else {
@@ -139,10 +121,8 @@ QSizePolicy Escena::sizePolicy() const {
 void Escena::paintGL(void) { dibuja_fondo(); }
 
 void Escena::initializeGL() {
-  this->yrot = 0;
-
-  glClearColor (0.5, 0.5, 0.5, 0.0);
-  glShadeModel (GL_FLAT);
+  glClearColor ( 0.8, 0.8, 0.8, 0.0);	// Background to a grey tone
+  // glShadeModel (GL_FLAT);
 
   glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -151,4 +131,6 @@ void Escena::initializeGL() {
 
   glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity ();
+
+  glEnable( GL_LINE_SMOOTH );	
 }

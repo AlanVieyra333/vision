@@ -148,7 +148,8 @@ int parametros_de_H( double H[3][3], double MK[16], double MRT[16], double Hi, d
     Rp[1][2] = Rp[2][0]*Rp[0][1] - Rp[2][1]*Rp[0][0];
     Rp[2][2] = Rp[0][0]*Rp[1][1] - Rp[0][1]*Rp[1][0];
     
-    CalculaR(Rp, R);
+    // CalculaR(Rp, R);
+    CopiaMatriz(Rp, R);
 	// Cálculo de theta3, theta2, theta1
 	theta1 = atan2( R[2][1], -R[2][0] );
 	theta1 *= 180.0/M_PI;
@@ -192,16 +193,16 @@ int parametros_de_H( double H[3][3], double MK[16], double MRT[16], double Hi, d
  * Calcula la matríz H (homografía) dado un conjunto de 4 
  * puntos de entrada, teniendo como salida la matriz K, R y t.
  * */
-int homografia(double P[][2], double p[][2], double MK[16], double MRT[16],  double height , double width)
+int homografia(double Pnor[][2], double p[][2], double MK[16], double MRT[16],  double height , double width)
 {
 	#define N 5
     int i,j;
     
     /*Valores en el modelo */
     double pnor[N][2];
-    double Pnor[N][2];
+    // double Pnor[N][2];
     double vdp[N];
-    double vdP[N];
+    double vdP[N] = {0.000000, 0.894427, -0.114286, 0.923171, 0.000000};
     double R[10][9] ;
     double A[10][9] = {{0}};
     double suma;
@@ -212,7 +213,8 @@ int homografia(double P[][2], double p[][2], double MK[16], double MRT[16],  dou
     double mu, s_u,mv, s_v;
 
     normalizar(pnor, p, vdp, N);
-    normalizar(Pnor, P, vdP, N);
+    // normalizar(Pnor, P, vdP, N);
+    
     i = 0;
     
     while (i < N){
