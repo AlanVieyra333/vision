@@ -50,17 +50,17 @@ void Escena::capture() {
 void Escena::dibuja_fondo() {
   glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
-  glPushMatrix();
-  glDisable(GL_DEPTH_TEST);
-
   // getting image from camera
   *(cap) >> frame;  // get a new frame from camera
 
   flip(frame, frame, 0);
   cv::cvtColor(frame, grayFrame, COLOR_BGR2GRAY);
 
+  // glPushMatrix();
+  glDisable(GL_DEPTH_TEST);
   glDrawPixels(frame.cols, frame.rows, GL_BGR, GL_UNSIGNED_BYTE, frame.data);
-  glPopMatrix();
+  glEnable(GL_DEPTH_TEST);
+  // glPopMatrix();
 
   double points[5][2];  
   bool marker_found = marker_recognition(grayFrame, points);
@@ -127,6 +127,7 @@ void Escena::initializeGL() {
   glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
+  glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0 );
   glEnable(GL_DEPTH_TEST);
 
   glMatrixMode(GL_MODELVIEW);
