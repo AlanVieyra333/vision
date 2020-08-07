@@ -42,11 +42,11 @@ int8_t img_classiier(Mat img) {
   return predict;
 }
 
-bool marker_recognition(Mat _img, double points[5][2]) {
+bool marker_recognition(Mat _img, double points[5][2], uint8_t u) {
   Mat Image;
 
   GaussianBlur(_img, Image, Size(7, 7), 0, 0);  // Smooth filter
-  threshold(Image, Image, 105, 255, THRESH_BINARY);
+  threshold(Image, Image, u, 255, THRESH_BINARY);
 
   bool marker_found = false;
   int v[4];

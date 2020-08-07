@@ -60,9 +60,8 @@ private:
     int windowWidth, windowHeight; // canvas width and height
     float yrot, xrot; // Encene rotation
     int xmouse, ymouse; // Mouse pointer coordinates
+    bool marker_found;
     double points[5][2];
-    double points_prev[5][2];
-    int are_there_points_prev = 0;
 };
 
 
