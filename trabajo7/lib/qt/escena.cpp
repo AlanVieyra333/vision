@@ -84,6 +84,9 @@ void Escena::dibuja_fondo() {
     // draw_triangle(this->yrot);
     animation_tetraedro(this->yrot);
     glPopMatrix();
+  } else {
+    printf("Marcador no encontrado.\n");
+    this->capture();
   }
 }
 
